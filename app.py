@@ -31,5 +31,22 @@ def simpan():
     return redirect(url_for('home'))
 
 
+@app.route('/update', methods=["POST"])
+def update():
+    id_data = request.form['id']
+    nama = request.form['nama']
+    cur = mysql.connection.cursor()
+    cur.execute("UPDATE computer SET data=%s WHERE id=%s", (nama,id_data,))
+    mysql.connection.commit()
+    return redirect(url_for('home'))
+
+@app.route('/hapus/<string:id_data>', methods=["GET"])
+def hapus(id_data):
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM computer WHERE id=%s", (id_data,))
+    mysql.connection.commit()
+    return redirect(url_for('home'))
+
+
 if __name__ == '__main__':
     app.run(debug=True)
