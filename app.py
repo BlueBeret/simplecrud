@@ -1,10 +1,15 @@
 from flask import Flask, render_template, request, url_for, redirect
 from flask_mysqldb import MySQL
+import json
+
+with open("auth.json") as auth:
+    auth_data = json.load(auth)
+
 
 app = Flask(__name__)
 app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_USER'] = auth_data["default"]["user"]
+app.config['MYSQL_PASSWORD'] = auth_data["default"]["password"]
 app.config['MYSQL_DB'] = 'flaskdb'
 mysql = MySQL(app)
 
@@ -15,6 +20,16 @@ def home():
     rv = cur.fetchall()
     cur.close()
     return render_template('home.html', computers=rv)
+
+
+@app.route('/simpan',methods=["POST"])
+def simpan():
+    nama = request.form['nama']
+    cur = mysql.connection.cursor()
+    cur.execute("INSERT INTO computer (data) VALUES (%s)",(nama,))
+    mysql.connection.commit()
+    return redirect(url_for('home'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
